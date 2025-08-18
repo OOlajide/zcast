@@ -88,15 +88,44 @@ export async function GET(request: NextRequest) {
 
     // Retrieve all podcasts for the user
     const redisKey = `podcasts:${fid}`;
+    
+    // Try different Redis methods to debug
+    console.log(`Querying Redis with key: ${redisKey}`);
+    
+    // First, check if the key exists
+    const keyExists = await redis.exists(redisKey);
+    console.log(`Key exists: ${keyExists}`);
+    
+    // Get the list length
+    const listLength = await redis.llen(redisKey);
+    console.log(`List length: ${listLength}`);
+    
+    // Try to get the data
     const podcastDataList = await redis.lrange(redisKey, 0, -1);
+    console.log(`Raw Redis response:`, podcastDataList);
+    console.log(`Redis response type:`, typeof podcastDataList);
+    console.log(`Redis response length:`, Array.isArray(podcastDataList) ? podcastDataList.length : 'not an array');
+
+    // Ensure podcastDataList is an array
+    const dataArray = Array.isArray(podcastDataList) ? podcastDataList : [];
 
     // Parse and sort by timestamp (newest first)
-    const podcasts: PodcastMetadata[] = podcastDataList
-      .map((data: string) => {
+    const podcasts: PodcastMetadata[] = dataArray
+      .map((data: unknown) => {
         try {
-          return JSON.parse(data);
+          console.log(`Parsing data:`, typeof data, data);
+          // Handle both string and already parsed object
+          if (typeof data === 'string') {
+            return JSON.parse(data);
+          } else if (typeof data === 'object' && data !== null) {
+            // Data is already an object, return as-is
+            return data;
+          } else {
+            console.error('Unexpected data type:', typeof data, data);
+            return null;
+          }
         } catch (parseError) {
-          console.error('Error parsing podcast data:', parseError);
+          console.error('Error parsing podcast data:', parseError, 'Data:', data);
           return null;
         }
       })
@@ -109,7 +138,13 @@ export async function GET(request: NextRequest) {
       success: true,
       fid,
       podcasts,
-      count: podcasts.length
+      count: podcasts.length,
+      debug: {
+        keyExists,
+        listLength,
+        rawDataLength: Array.isArray(podcastDataList) ? podcastDataList.length : 'not an array',
+        rawDataType: typeof podcastDataList
+      }
     });
 
   } catch (error) {

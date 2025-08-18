@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const projectName = process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME || 'InstaPod';
   const heroImage = process.env.NEXT_PUBLIC_APP_HERO_IMAGE || `${URL}/hero.png`;
   const splashImage = process.env.NEXT_PUBLIC_APP_SPLASH_IMAGE || `${URL}/splash.png`;
-  const splashBgColor = process.env.NEXT_PUBLIC_SPLASH_BACKGROUND_COLOR || '#000000';
+  const splashBgColor = process.env.NEXT_PUBLIC_SPLASH_BACKGROUND_COLOR || '#ffffff';
   
   return {
     title: process.env.NEXT_PUBLIC_APP_OG_TITLE || "InstaPod - AI Podcast Generator",
