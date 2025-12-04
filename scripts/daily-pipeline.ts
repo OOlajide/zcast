@@ -70,7 +70,7 @@ async function decompressFile(sourcePath: string, destPath: string) {
 }
 
 async function generatePodcastScript(metrics: any, dateStr: string, ai: GoogleGenAI, prevMetrics?: any): Promise<string> {
-  console.log('Generating podcast script with Gemini 2.0 Flash...');
+  console.log('Generating podcast script with Gemini 2.5 Flash...');
 
   let prompt = `
     Based on the following Zcash metrics for ${dateStr}, generate a 5-7 minute professional analyst podcast dialogue between two hosts, Neo and Trinity.
