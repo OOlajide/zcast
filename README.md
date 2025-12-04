@@ -7,8 +7,8 @@ Zcast is an automated intelligence pipeline that generates a daily professional 
 Every day, the system:
 1.  **Ingests Data**: Downloads raw Zcash blockchain data (blocks, transactions, inputs, outputs) from Blockchair.
 2.  **Analyzes Metrics**: Runs a Python analytics engine to compute key indicators like Net Privacy Flow, Shielded Transaction counts, and Network Throughput.
-3.  **Generates Script**: Uses Google Gemini 2.0 Flash to write a professional analyst script based on the day's metrics.
-4.  **Synthesizes Audio**: Uses Google Gemini 2.5 Flash TTS to voice the script as "Cipher", an AI crypto analyst.
+3.  **Generates Script**: The metrics from the analytics script are fed to Google Gemini Flash 2.5 to write a professional analyst script.
+4.  **Synthesizes Audio**: Uses Google Gemini Flash 2.5 TTS to voice the script as "Cipher", an AI crypto analyst.
 5.  **Publishes**: Makes the episode available via a Next.js web interface.
 
 ## Prerequisites
@@ -35,6 +35,7 @@ Every day, the system:
     Create a `.env` file:
     ```env
     GEMINI_API_KEY=your_api_key_here
+    BLOCKCHAIR_KEY=your_blockchair_api_key
     ```
 
 ## Usage
@@ -65,8 +66,8 @@ Visit [http://localhost:3000](http://localhost:3000).
 - **Analytics**: `lib/analytics.py` (Python data processing)
 - **Frontend**: Next.js 15 (React 18)
 - **AI Models**:
-    - Script: Gemini 2.0 Flash
-    - Audio: Gemini 2.5 Flash Preview TTS
+    - Script: Gemini Flash 2.5
+    - Audio: Gemini Flash 2.5 TTS
 
 ## Data Source
 Blockchain data provided by [Blockchair](https://blockchair.com/).
