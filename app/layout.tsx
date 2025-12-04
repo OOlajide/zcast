@@ -1,8 +1,6 @@
 import "./theme.css";
-import "@coinbase/onchainkit/styles.css";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { Providers } from "./providers";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -10,37 +8,16 @@ export const viewport: Viewport = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const URL = process.env.NEXT_PUBLIC_URL;
-  const projectName = process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME || 'InstaPod';
-  const heroImage = process.env.NEXT_PUBLIC_APP_HERO_IMAGE || `${URL}/hero.png`;
-  const splashImage = process.env.NEXT_PUBLIC_APP_SPLASH_IMAGE || `${URL}/splash.png`;
-  const splashBgColor = process.env.NEXT_PUBLIC_SPLASH_BACKGROUND_COLOR || '#ffffff';
+  const URL = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
+  const heroImage = `${URL}/hero.png`;
   
   return {
-    title: process.env.NEXT_PUBLIC_APP_OG_TITLE || "InstaPod - AI Podcast Generator",
-    description: process.env.NEXT_PUBLIC_APP_OG_DESCRIPTION || 
-      "Generate unique podcast episodes from a single prompt using AI. Create engaging audio content with Neo and Trinity as your hosts.",
+    title: "Zcast - Daily Zcash Intelligence",
+    description: "Daily AI-generated podcast analyzing Zcash network metrics, privacy flows, and market activity.",
     openGraph: {
-      title: process.env.NEXT_PUBLIC_APP_OG_TITLE || "InstaPod - AI Podcast Generator",
-      description: process.env.NEXT_PUBLIC_APP_OG_DESCRIPTION || 
-        "Generate unique podcast episodes from a single prompt using AI",
-      images: [process.env.NEXT_PUBLIC_APP_OG_IMAGE || heroImage],
-    },
-    other: {
-      "fc:frame": JSON.stringify({
-        version: "next",
-        imageUrl: heroImage,
-        button: {
-          title: `Launch ${projectName}`,
-          action: {
-            type: "launch_frame",
-            name: projectName,
-            url: URL,
-            splashImageUrl: splashImage,
-            splashBackgroundColor: splashBgColor,
-          },
-        },
-      }),
+      title: "Zcast - Daily Zcash Intelligence",
+      description: "Daily AI-generated podcast analyzing Zcash network metrics, privacy flows, and market activity.",
+      images: [heroImage],
     },
   };
 }
@@ -53,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-background">
-        <Providers>{children}</Providers>
+        {children}
       </body>
     </html>
   );

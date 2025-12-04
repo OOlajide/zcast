@@ -1,82 +1,72 @@
-# InstaPod - AI Podcast Generator
+# Zcast - Daily Zcash Intelligence
 
-Generate unique podcast episodes from a single prompt. Features Neo and Trinity as your AI hosts in an engaging conversational format.
+Zcast is an automated intelligence pipeline that generates a daily professional podcast analyzing Zcash network metrics, privacy usage, and blockchain anomalies.
 
-## Features
+## Overview
 
-- **Modern UI**: Clean, minimalist design optimized for mobile
-- **AI-Powered**: Uses Google Gemini for transcript and speech generation
-- **Multi-Speaker**: Features Neo and Trinity as hosts
-- **Audio Playback**: Built-in audio player with download functionality
-- **Real-time Generation**: Create podcasts on-demand from any topic
+Every day, the system:
+1.  **Ingests Data**: Downloads raw Zcash blockchain data (blocks, transactions, inputs, outputs) from Blockchair.
+2.  **Analyzes Metrics**: Runs a Python analytics engine to compute key indicators like Net Privacy Flow, Shielded Transaction counts, and Network Throughput.
+3.  **Generates Script**: Uses Google Gemini 2.0 Flash to write a professional analyst script based on the day's metrics.
+4.  **Synthesizes Audio**: Uses Google Gemini 2.5 Flash TTS to voice the script as "Cipher", an AI crypto analyst.
+5.  **Publishes**: Makes the episode available via a Next.js web interface.
+
+## Prerequisites
+
+- Node.js 18+
+- Python 3.10+
+- Google Gemini API Key
 
 ## Setup
 
-1. **Install Dependencies**
-   ```bash
-   npm install
-   ```
+1.  **Install Node Dependencies**
+    ```bash
+    npm install
+    ```
 
-2. **Configure Environment Variables**
-   Create a `.env.local` file in your project root:
-   ```
-   GEMINI_API_KEY=your_gemini_api_key_here
-   NEXT_PUBLIC_URL=http://localhost:3000
-   ```
+2.  **Setup Python Environment**
+    ```bash
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip install -r requirements.txt
+    ```
 
-3. **Get Google AI API Key**
-   - Visit [Google AI Studio](https://aistudio.google.com/)
-   - Create a new project and generate an API key
-
-4. **Run the Development Server**
-   ```bash
-   npm run dev
-   ```
-
-5. **Open the App**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+3.  **Configure Environment**
+    Create a `.env` file:
+    ```env
+    GEMINI_API_KEY=your_api_key_here
+    ```
 
 ## Usage
 
-1. Enter a topic or prompt in the text area (e.g., "history of bitcoin")
-2. Click "Generate" to start the process
-3. Wait for podcast generation
-4. Listen to the generated audio using the built-in player
+### Running the Pipeline
 
-## Technology Stack
-
-- **Frontend**: Next.js 15, React 18, Tailwind CSS
-- **Backend**: Next.js API Routes
-- **AI**: Google Gemini 2.0 Flash (transcript), Gemini 2.5 Flash TTS (audio)
-- **Audio**: WAV format with multi-speaker voice synthesis
-
-## API Endpoints
-
-- `POST /api/generate-podcast` - Generate podcast from prompt
-  - Body: `{ "prompt": "your topic here" }`
-  - Returns: `{ "audioUrl": "/podcasts/podcast-timestamp.wav", "transcript": "..." }`
-
-## File Structure
-
-```
-app/
-├── api/generate-podcast/route.ts  # Podcast generation API
-├── page.tsx                       # Main UI component
-├── layout.tsx                     # App layout and metadata
-└── globals.css                    # Global styles
-
-public/
-└── podcasts/                      # Generated audio files
+To generate the podcast for yesterday (default):
+```bash
+npm run daily-job
 ```
 
-## Deployment
+To generate for a specific date (e.g., Dec 3rd, 2025):
+```bash
+npm run daily-job 20251203
+```
 
-Deploy to Vercel:
+### Viewing the Dashboard
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-username/instapod)
+Start the web interface to listen to episodes and view metrics:
+```bash
+npm run dev
+```
+Visit [http://localhost:3000](http://localhost:3000).
 
-Make sure to add your `GEMINI_API_KEY` environment variable in your deployment settings.
+## Architecture
 
-## Notes
+- **Pipeline**: `scripts/daily-pipeline.ts` (Orchestrator)
+- **Analytics**: `lib/analytics.py` (Python data processing)
+- **Frontend**: Next.js 15 (React 18)
+- **AI Models**:
+    - Script: Gemini 2.0 Flash
+    - Audio: Gemini 2.5 Flash Preview TTS
 
-- Built on the MiniKit framework for Farcaster integration
+## Data Source
+Blockchain data provided by [Blockchair](https://blockchair.com/).

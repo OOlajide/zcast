@@ -3,25 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "npm run scheduler & next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "npm run scheduler & next start",
     "lint": "next lint",
     "scheduler": "tsx scripts/scheduler.ts",
     "daily-job": "tsx scripts/daily-pipeline.ts"
   },
   "dependencies": {
-    "@coinbase/onchainkit": "latest",
-    "@farcaster/frame-sdk": "^0.1.8",
     "@google/genai": "^1.14.0",
-    "@tanstack/react-query": "^5",
-    "@upstash/redis": "^1.35.3",
-    "@vercel/blob": "^0.27.0",
     "next": "^15.3.3",
     "react": "^18",
     "react-dom": "^18",
-    "viem": "^2.27.2",
-    "wagmi": "^2.16.0",
     "wav": "^1.0.2"
   },
   "devDependencies": {

@@ -56,7 +56,7 @@ async function downloadFile(url: string, destPath: string) {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Failed to download ${url}: ${response.statusText}`);
   if (!response.body) throw new Error(`No body for ${url}`);
-  
+
   // @ts-ignore - native fetch stream compatible with pipeline
   await streamPipeline(response.body, fs.createWriteStream(destPath));
 }
@@ -71,41 +71,56 @@ async function decompressFile(sourcePath: string, destPath: string) {
 
 async function generatePodcastScript(metrics: any, dateStr: string, ai: GoogleGenAI): Promise<string> {
   console.log('Generating podcast script with Gemini 2.0 Flash...');
-  
+
   const prompt = `
-    Based on the following Zcash metrics for ${dateStr}, generate a 5-7 minute professional analyst podcast script.
-    The host is named "Cipher".
+    Based on the following Zcash metrics for ${dateStr}, generate a 5-7 minute professional analyst podcast dialogue between two hosts, Neo and Trinity.
+    Neo: Lead Analyst (Deep, insightful, technical).
+    Trinity: Co-host (Inquisitive, clarifies points, adds market context).
     Tone: Professional, Analytical, Insightful. Not hype.
     Topics: Privacy flows, Whale activity, Network health, Anomalies.
     
-    Structure the response as a pure script.
+    IMPORTANT: Strictly spoken dialogue only. No sound effects, no music cues, no [applause], no [intro music], no [fade out]. Only write what the hosts say.
+    Structure the response as a pure script with "Neo:" and "Trinity:" prefixes.
     
     Metrics:
     ${JSON.stringify(metrics, null, 2)}
   `;
 
   const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
+    model: "gemini-flash-latest",
     contents: prompt,
   });
 
   const script = response.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!script) throw new Error("Failed to generate script from Gemini.");
-  
+
   return script;
 }
 
 async function generateAudio(script: string, dateStr: string, ai: GoogleGenAI): Promise<string> {
   console.log('Converting script to audio with Gemini 2.5 Flash TTS...');
-  
+
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash-preview-tts",
     contents: script,
     config: {
       responseModalities: ['AUDIO'],
       speechConfig: {
-        voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: "Charon" }, // Deep, analyst-like voice
+        multiSpeakerVoiceConfig: {
+          speakerVoiceConfigs: [
+            {
+              speaker: "Neo",
+              voiceConfig: {
+                prebuiltVoiceConfig: { voiceName: "Charon" },
+              }
+            },
+            {
+              speaker: "Trinity",
+              voiceConfig: {
+                prebuiltVoiceConfig: { voiceName: "Leda" },
+              }
+            }
+          ]
         }
       }
     }
@@ -116,19 +131,19 @@ async function generateAudio(script: string, dateStr: string, ai: GoogleGenAI): 
 
   const audioBuffer = Buffer.from(audioData, 'base64');
   const outputPath = path.join(PUBLIC_PODCAST_DIR, `zcash_daily_podcast_${dateStr}.wav`); // Using WAV as raw output from header function
-  
+
   await saveWavFile(outputPath, audioBuffer);
-  
+
   return outputPath;
 }
 
 async function runPipeline(specificDate?: string) {
   try {
     console.log('Starting Daily Zcash Pipeline...');
-    
+
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
     if (!apiKey) {
-        throw new Error("GEMINI_API_KEY or GOOGLE_GENAI_API_KEY is not set in environment variables.");
+      throw new Error("GEMINI_API_KEY or GOOGLE_GENAI_API_KEY is not set in environment variables.");
     }
     const ai = new GoogleGenAI({ apiKey });
 
@@ -136,19 +151,19 @@ async function runPipeline(specificDate?: string) {
     const today = new Date();
     const targetDate = specificDate ? new Date(specificDate.slice(0, 4) + '-' + specificDate.slice(4, 6) + '-' + specificDate.slice(6, 8)) : new Date(today);
     if (!specificDate) targetDate.setDate(today.getDate() - 1); // Yesterday
-    
+
     const yyyy = targetDate.getFullYear();
     const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
     const dd = String(targetDate.getDate()).padStart(2, '0');
     const dateStr = `${yyyy}${mm}${dd}`;
-    
+
     console.log(`Processing for date: ${dateStr}`);
 
     // 2. Download Files
     const files = ['blocks', 'transactions', 'inputs', 'outputs'];
     const baseUrl = 'https://gz.blockchair.com/zcash';
     const key = '202001ZjMvj8R3BF'; // From prompt
-    
+
     for (const type of files) {
       const fileName = `blockchair_zcash_${type}_${dateStr}.tsv.gz`;
       const url = `${baseUrl}/${type}/${fileName}?key=${key}`;
@@ -157,8 +172,8 @@ async function runPipeline(specificDate?: string) {
 
       // Check if decompressed file already exists to save bandwidth during dev
       if (fs.existsSync(decompressedPath)) {
-          console.log(`File ${decompressedPath} already exists. Skipping download.`);
-          continue;
+        console.log(`File ${decompressedPath} already exists. Skipping download.`);
+        continue;
       }
 
       console.log(`Downloading ${type}...`);
@@ -175,7 +190,7 @@ async function runPipeline(specificDate?: string) {
     // 3. Run Analytics (Python)
     console.log('Running analytics engine...');
     await execAsync(`./.venv/bin/python ${PYTHON_SCRIPT} ${dateStr}`);
-    
+
     // 4. Read Metrics
     const metricsPath = path.join(process.cwd(), `metrics_${dateStr}.json`);
     if (!fs.existsSync(metricsPath)) throw new Error('Metrics file was not generated.');
@@ -183,7 +198,7 @@ async function runPipeline(specificDate?: string) {
 
     // 5. Generate Script
     const script = await generatePodcastScript(metrics, dateStr, ai);
-    
+
     // 6. Generate Audio
     await generateAudio(script, dateStr, ai);
 
@@ -195,8 +210,14 @@ async function runPipeline(specificDate?: string) {
   }
 }
 
-// CLI execution
-const args = process.argv.slice(2);
-const dateArg = args[0]; // Optional YYYYMMDD
-runPipeline(dateArg);
+// CLI execution check
+import { fileURLToPath } from 'url';
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const args = process.argv.slice(2);
+  const dateArg = args[0]; // Optional YYYYMMDD
+  runPipeline(dateArg);
+}
+
+export { runPipeline };
 
