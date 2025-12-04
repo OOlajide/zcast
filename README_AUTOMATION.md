@@ -8,7 +8,7 @@ This repository contains an automated pipeline to generate daily Zcash intellige
 2.  **Python**: v3.8+ with `pip`.
 3.  **API Keys**:
     *   Google Gemini API Key (for script generation and TTS) - Set as `GEMINI_API_KEY` in environment variables.
-    *   Blockchair (Key provided in script: `202001ZjMvj8R3BF`)
+    *   Blockchair API Key - Set as `BLOCKCHAIR_KEY` in environment variables
 
 ## Setup
 
