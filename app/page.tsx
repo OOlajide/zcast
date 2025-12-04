@@ -110,6 +110,11 @@ export default function App() {
             <p className="text-gray-600 text-lg">
               Create a mini podcast from a single prompt
             </p>
+            <div className="pt-2">
+              <a href="/daily" className="text-sm font-medium text-purple-600 hover:text-purple-800 hover:underline transition-colors">
+                View Daily Zcash Reports →
+              </a>
+            </div>
           </div>
 
           {/* Text Input */}
