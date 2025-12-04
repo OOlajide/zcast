@@ -1,4 +1,4 @@
-# Zcash Daily Intelligence Pipeline
+# Zcash Daily Data Podcast Pipeline
 
 This repository contains an automated pipeline to generate daily Zcash intelligence podcasts.
 

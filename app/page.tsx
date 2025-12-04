@@ -69,12 +69,12 @@ export default function DailyPodcastPage() {
     <main className="flex min-h-screen flex-col items-center justify-center p-6 md:p-24 bg-zinc-900 text-white">
       <div className="z-10 w-full max-w-5xl items-center justify-end font-mono text-sm lg:flex mb-12">
         <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Zcash Daily Intelligence
+          Zcash Daily Data Podcast
         </p>
       </div>
 
       <div className="flex flex-col items-center w-full max-w-3xl">
-        <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent">Daily On-Chain Report</h1>
+        <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-transparent">Zcast</h1>
 
         {latestEpisode ? (
           <div className="w-full space-y-6">
@@ -86,7 +86,7 @@ export default function DailyPodcastPage() {
                     <p className="text-zinc-400">{latestEpisode.formattedDate}</p>
                  </div>
                  <span className="mt-2 md:mt-0 px-3 py-1 bg-amber-500/20 text-amber-400 rounded-full text-xs font-semibold uppercase tracking-wider border border-amber-500/20">
-                    Daily Briefing
+                    Daily Podcast
                  </span>
               </div>
               
