@@ -38,6 +38,7 @@ export default function DailyPodcastPage() {
       const formattedDate = dateStr 
         ? new Date(dateStr.slice(0, 4) + '-' + dateStr.slice(4, 6) + '-' + dateStr.slice(6, 8)).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) 
         : 'Unknown Date';
+
       
       // Try to read metrics
       let metrics: Metrics | undefined;
@@ -126,9 +127,12 @@ export default function DailyPodcastPage() {
                 </div>
               )}
               
-              <div className="mt-6 text-xs text-zinc-500 text-center flex items-center justify-center">
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                AI Analysis powered by Gemini 2.0 Flash
+              <div className="mt-6 text-xs text-zinc-500 text-center flex items-center justify-center gap-1">
+                Data provided by
+                <Link href="https://blockchair.com/dumps" target="_blank" className="flex items-center hover:text-zinc-300 transition-colors font-medium">
+                   Blockchair
+                   <img src="/blockchair_logo.svg" alt="Blockchair" className="h-4 ml-1.5" />
+                </Link>
               </div>
             </div>
           </div>
