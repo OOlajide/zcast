@@ -69,10 +69,10 @@ async function decompressFile(sourcePath: string, destPath: string) {
   );
 }
 
-async function generatePodcastScript(metrics: any, dateStr: string, ai: GoogleGenAI): Promise<string> {
+async function generatePodcastScript(metrics: any, dateStr: string, ai: GoogleGenAI, prevMetrics?: any): Promise<string> {
   console.log('Generating podcast script with Gemini 2.0 Flash...');
 
-  const prompt = `
+  let prompt = `
     Based on the following Zcash metrics for ${dateStr}, generate a 5-7 minute professional analyst podcast dialogue between two hosts, Neo and Trinity.
     Neo: Lead Analyst (Deep, insightful, technical).
     Trinity: Co-host (Inquisitive, clarifies points, adds market context).
@@ -82,9 +82,19 @@ async function generatePodcastScript(metrics: any, dateStr: string, ai: GoogleGe
     IMPORTANT: Strictly spoken dialogue only. No sound effects, no music cues, no [applause], no [intro music], no [fade out]. Only write what the hosts say.
     Structure the response as a pure script with "Neo:" and "Trinity:" prefixes.
     
-    Metrics:
+    Current Metrics (${dateStr}):
     ${JSON.stringify(metrics, null, 2)}
   `;
+
+  if (prevMetrics) {
+    prompt += `
+    
+    Previous Day Metrics (for comparison/trend analysis):
+    ${JSON.stringify(prevMetrics, null, 2)}
+    
+    Instruction: Compare today's metrics with the previous day's metrics. Highlight significant changes (e.g., spikes in shielded transactions, drop in hashrate, large whale movements). Discuss trends.
+    `;
+  }
 
   const response = await ai.models.generateContent({
     model: "gemini-flash-latest",
@@ -156,13 +166,25 @@ async function runPipeline(specificDate?: string) {
     const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
     const dd = String(targetDate.getDate()).padStart(2, '0');
     const dateStr = `${yyyy}${mm}${dd}`;
+    
+    // Calculate previous date
+    const prevDate = new Date(targetDate);
+    prevDate.setDate(prevDate.getDate() - 1);
+    const prevYyyy = prevDate.getFullYear();
+    const prevMm = String(prevDate.getMonth() + 1).padStart(2, '0');
+    const prevDd = String(prevDate.getDate()).padStart(2, '0');
+    const prevDateStr = `${prevYyyy}${prevMm}${prevDd}`;
 
-    console.log(`Processing for date: ${dateStr}`);
+    console.log(`Processing for date: ${dateStr} (Previous: ${prevDateStr})`);
 
     // 2. Download Files
     const files = ['blocks', 'transactions', 'inputs', 'outputs'];
     const baseUrl = 'https://gz.blockchair.com/zcash';
-    const key = '202001ZjMvj8R3BF'; // From prompt
+    const key = process.env.BLOCKCHAIR_KEY;
+    
+    if (!key) {
+        throw new Error("BLOCKCHAIR_KEY is not set in environment variables.");
+    }
 
     for (const type of files) {
       const fileName = `blockchair_zcash_${type}_${dateStr}.tsv.gz`;
@@ -192,12 +214,43 @@ async function runPipeline(specificDate?: string) {
     await execAsync(`./.venv/bin/python ${PYTHON_SCRIPT} ${dateStr}`);
 
     // 4. Read Metrics
-    const metricsPath = path.join(process.cwd(), `metrics_${dateStr}.json`);
-    if (!fs.existsSync(metricsPath)) throw new Error('Metrics file was not generated.');
+    const metricsDir = path.join(process.cwd(), 'data', 'metrics');
+    const metricsPath = path.join(metricsDir, `metrics_${dateStr}.json`);
+    const prevMetricsPath = path.join(metricsDir, `metrics_${prevDateStr}.json`);
+
+    if (!fs.existsSync(metricsPath)) throw new Error(`Metrics file was not generated at ${metricsPath}.`);
     const metrics = JSON.parse(fs.readFileSync(metricsPath, 'utf-8'));
+    
+    let prevMetrics = null;
+    if (fs.existsSync(prevMetricsPath)) {
+        console.log(`Found previous day metrics: ${prevMetricsPath}`);
+        try {
+            prevMetrics = JSON.parse(fs.readFileSync(prevMetricsPath, 'utf-8'));
+        } catch (e) {
+            console.warn("Failed to parse previous metrics:", e);
+        }
+    } else {
+        console.log("No previous day metrics found for comparison.");
+    }
+
+    // Cleanup Data Files
+    console.log('Cleaning up data files...');
+    for (const type of files) {
+        const compressedFile = path.join(DATA_DIR, `blockchair_zcash_${type}_${dateStr}.tsv.gz`);
+        const decompressedFile = path.join(process.cwd(), `blockchair_zcash_${type}_${dateStr}.tsv`);
+
+        if (fs.existsSync(compressedFile)) {
+            fs.unlinkSync(compressedFile);
+            console.log(`Deleted ${compressedFile}`);
+        }
+        if (fs.existsSync(decompressedFile)) {
+            fs.unlinkSync(decompressedFile);
+            console.log(`Deleted ${decompressedFile}`);
+        }
+    }
 
     // 5. Generate Script
-    const script = await generatePodcastScript(metrics, dateStr, ai);
+    const script = await generatePodcastScript(metrics, dateStr, ai, prevMetrics);
 
     // 6. Generate Audio
     await generateAudio(script, dateStr, ai);

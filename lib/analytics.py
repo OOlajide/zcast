@@ -14,12 +14,16 @@ def analyze_zcash_metrics(date):
         'outputs': f'blockchair_zcash_outputs_{date}.tsv'
     }
 
+    output_dir = os.path.join("data", "metrics")
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, f"metrics_{date}.json")
+    
     # Verify files exist before trying to read
     for key, file_path in files.items():
         if not os.path.exists(file_path):
             output = {"error": f"File not found: {file_path}"}
             print(json.dumps(output, indent=2))
-            with open(f"metrics_{date}.json", "w") as f:
+            with open(output_path, "w") as f:
                 json.dump(output, f, indent=2)
             return
 
@@ -31,7 +35,7 @@ def analyze_zcash_metrics(date):
     except Exception as e:
         output = {"error": f"Error reading files: {str(e)}"}
         print(json.dumps(output, indent=2))
-        with open(f"metrics_{date}.json", "w") as f:
+        with open(output_path, "w") as f:
             json.dump(output, f, indent=2)
         return
 
@@ -103,6 +107,10 @@ def analyze_zcash_metrics(date):
 
     total_zec_transferred = df_transactions['output_total'].sum() / ZATOSHI_TO_ZEC
 
+    df_transactions['output_total_usd'] = pd.to_numeric(
+        df_transactions['output_total_usd'], errors='coerce'
+    ).fillna(0)
+
     total_usd_transferred = df_transactions['output_total_usd'].sum()
 
     avg_fee_usd = df_transactions['fee_usd'].mean()
@@ -119,10 +127,6 @@ def analyze_zcash_metrics(date):
     unique_output_recipients = set(df_outputs['recipient'].unique())
     unique_input_recipients = set(df_inputs['recipient'].unique())
     num_unique_active_addresses = len(unique_output_recipients.union(unique_input_recipients))
-
-    df_transactions['output_total_usd'] = pd.to_numeric(
-        df_transactions['output_total_usd'], errors='coerce'
-    ).fillna(0)
 
     def categorize_transaction_size(value):
         if value <= 100: return 'Small'
@@ -208,10 +212,10 @@ def analyze_zcash_metrics(date):
         }
     }
 
-    with open(f"metrics_{date}.json", "w") as f:
+    with open(output_path, "w") as f:
         json.dump(metrics_output, f, indent=2)
 
-    print(f"✅ Successfully created metrics_{date}.json")
+    print(f"✅ Successfully created {output_path}")
 
 
 if __name__ == "__main__":
