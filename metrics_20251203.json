@@ -1,0 +1,28 @@
+{
+  "privacy_metrics": {
+    "total_zec_shielded": 133689368548.0,
+    "total_zec_deshielded": -173056638267.0,
+    "net_privacy_flow": -39367269719.0,
+    "shielded_transactions_count": 146,
+    "percentage_shielded_transactions": 2.62024407753051,
+    "median_absolute_shielded_value_delta": 242873549.5,
+    "mean_absolute_shielded_value_delta": 2101000046.6780822,
+    "transparent_transactions_count": 5426
+  },
+  "network_throughput_metrics": {
+    "total_zec_transferred": 123064859891542.0,
+    "total_usd_transferred": 3691945796746260.0,
+    "average_transaction_fee_usd": 761.7415987616656,
+    "median_transaction_fee_usd": 0.0471,
+    "minimum_transaction_fee_usd": 0.0,
+    "maximum_transaction_fee_usd": 328253.125,
+    "estimated_tps": 0.0645490141562985,
+    "num_unique_active_addresses": 5811,
+    "transaction_size_category_counts": {
+      "Medium": 2018,
+      "Small": 1539,
+      "Whale": 1091,
+      "Large": 924
+    }
+  }
+}

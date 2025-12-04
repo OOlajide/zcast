@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "scheduler": "tsx scripts/scheduler.ts",
+    "daily-job": "tsx scripts/daily-pipeline.ts"
   },
   "dependencies": {
     "@coinbase/onchainkit": "latest",
