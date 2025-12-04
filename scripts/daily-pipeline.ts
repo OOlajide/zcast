@@ -77,6 +77,7 @@ async function generatePodcastScript(metrics: any, dateStr: string, ai: GoogleGe
     Neo: Lead Analyst (Deep, insightful, technical).
     Trinity: Co-host (Inquisitive, clarifies points, adds market context).
     Tone: Professional, Analytical, Insightful. Not hype.
+    The name of the podcast is "the Zcast podcast".
     Topics: Privacy flows, Whale activity, Network health, Anomalies.
     
     IMPORTANT: Strictly spoken dialogue only. No sound effects, no music cues, no [applause], no [intro music], no [fade out]. Only write what the hosts say.
